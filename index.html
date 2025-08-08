@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เครื่องมือวางแผนการเงินอัจฉริยะ V4.8 (Light Mode)</title>
+    <title>เครื่องมือวางแผนการเงินอัจฉริยะ V4.9 (Realistic Logic)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -318,7 +318,7 @@
             
             const livingExpense = expHousing + expFood + expTransport + expPersonal + expDebt;
             const hasFullProtection = hasLifeInsurance && hasHealthInsurance && hasRetirementPlan;
-            const totalPassiveIncome = incomeB + incomeI; // *** UPDATED LOGIC ***
+            const totalPassiveIncome = incomeB + incomeI;
 
             // 2. Calculate totals
             const totalIncome = incomeE + incomeS + incomeB + incomeI;
@@ -328,20 +328,24 @@
             const totalDebts = debtShort + debtLong;
             const netWorth = totalAssets - totalDebts;
 
-            // 3. Determine Wealth Level
+            // 3. *** NEW REALISTIC LOGIC V4.9 ***
             let currentLevelKey = 'struggle';
-            if (totalIncome > 0 || totalExpense > 0) {
-                 if (totalPassiveIncome > livingExpense * 5 && livingExpense > 0 && netWorth > 30000000) { // *** UPDATED LOGIC ***
-                    currentLevelKey = 'abundance';
-                } else if (totalPassiveIncome >= livingExpense * 2 && livingExpense > 0) { // *** UPDATED LOGIC ***
-                    currentLevelKey = 'freedom';
-                } else if (totalIncome >= livingExpense * 2 && livingExpense > 0 && assetInvest > 0) {
-                    currentLevelKey = 'comfort';
-                } else if (totalIncome > livingExpense && hasFullProtection) {
-                    currentLevelKey = 'protection';
-                } else if (totalIncome > livingExpense) {
+            if (totalIncome > livingExpense) { // Must be at least Survival
+                if (hasFullProtection) { // If they have full protection, they can be Protection or higher
+                    if (totalPassiveIncome > livingExpense * 5 && netWorth > 30000000) {
+                        currentLevelKey = 'abundance';
+                    } else if (totalPassiveIncome >= livingExpense * 2) {
+                        currentLevelKey = 'freedom';
+                    } else if (totalIncome >= livingExpense * 2 && assetInvest > 0) {
+                        currentLevelKey = 'comfort';
+                    } else {
+                        currentLevelKey = 'protection';
+                    }
+                } else { // If they don't have full protection, they are stuck at Survival
                     currentLevelKey = 'survival';
                 }
+            } else { // Income is not greater than expenses
+                currentLevelKey = 'struggle';
             }
             
             updateWealthLevelUI(currentLevelKey);
