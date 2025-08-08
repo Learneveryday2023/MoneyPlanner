@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เครื่องมือวางแผนการเงินอัจฉริยะ V4.5 (Light Mode)</title>
+    <title>เครื่องมือวางแผนการเงินอัจฉริยะ V4.7 (Light Mode)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -143,10 +143,10 @@
             <div class="glass-card max-w-4xl mx-auto">
                 <h2 class="text-3xl font-bold text-center mb-8">💰 1. รายรับ (ต่อเดือน)</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div><label for="incomeE" class="form-label">ลูกจ้าง (E)</label><input type="number" id="incomeE" class="form-input" placeholder="0" oninput="calculateAll()"></div>
-                    <div><label for="incomeS" class="form-label">ธุรกิจส่วนตัว (S)</label><input type="number" id="incomeS" class="form-input" placeholder="0" oninput="calculateAll()"></div>
-                    <div><label for="incomeB" class="form-label">เจ้าของธุรกิจ (B)</label><input type="number" id="incomeB" class="form-input" placeholder="0" oninput="calculateAll()"></div>
-                    <div><label for="incomeI" class="form-label">นักลงทุน (I - Passive)</label><input type="number" id="incomeI" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="incomeE" class="form-label">ลูกจ้าง (E)<br class="hidden lg:inline">&nbsp;</label><input type="number" id="incomeE" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="incomeS" class="form-label">ธุรกิจส่วนตัว (S) <br class="hidden lg:inline">- หยุดงานไม่ได้เงิน</label><input type="number" id="incomeS" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="incomeB" class="form-label">เจ้าของธุรกิจ (B) <br class="hidden lg:inline">- หยุดงานก็ได้เงิน</label><input type="number" id="incomeB" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="incomeI" class="form-label">นักลงทุน (I - Passive)<br class="hidden lg:inline">&nbsp;</label><input type="number" id="incomeI" class="form-input" placeholder="0" oninput="calculateAll()"></div>
                 </div>
                 <div class="mt-6 pt-4 border-t border-white/20 text-right"><span class="text-lg">รวมรายรับ: </span><span id="totalIncomeDisplayCard" class="text-xl font-bold">0 ฿</span></div>
             </div>
