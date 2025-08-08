@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เครื่องมือวางแผนการเงินอัจฉริยะ V4.7 (Light Mode)</title>
+    <title>เครื่องมือวางแผนการเงินอัจฉริยะ V4.8 (Light Mode)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -318,6 +318,7 @@
             
             const livingExpense = expHousing + expFood + expTransport + expPersonal + expDebt;
             const hasFullProtection = hasLifeInsurance && hasHealthInsurance && hasRetirementPlan;
+            const totalPassiveIncome = incomeB + incomeI; // *** UPDATED LOGIC ***
 
             // 2. Calculate totals
             const totalIncome = incomeE + incomeS + incomeB + incomeI;
@@ -330,9 +331,9 @@
             // 3. Determine Wealth Level
             let currentLevelKey = 'struggle';
             if (totalIncome > 0 || totalExpense > 0) {
-                 if (incomeI > livingExpense * 5 && livingExpense > 0 && netWorth > 30000000) {
+                 if (totalPassiveIncome > livingExpense * 5 && livingExpense > 0 && netWorth > 30000000) { // *** UPDATED LOGIC ***
                     currentLevelKey = 'abundance';
-                } else if (incomeI >= livingExpense * 2 && livingExpense > 0) {
+                } else if (totalPassiveIncome >= livingExpense * 2 && livingExpense > 0) { // *** UPDATED LOGIC ***
                     currentLevelKey = 'freedom';
                 } else if (totalIncome >= livingExpense * 2 && livingExpense > 0 && assetInvest > 0) {
                     currentLevelKey = 'comfort';
