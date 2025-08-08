@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เครื่องมือวางแผนการเงินอัจฉริยะ V4.5 (Light Mode)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, #4b7bec, #a55eea, #f777e1, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient-animation 20s ease infinite;
+        }
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        .form-input {
+            @apply w-full px-4 py-3 font-bold bg-white border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all duration-300 placeholder-gray-500;
+            color: black;
+        }
+        .form-label {
+            @apply block text-white text-sm font-bold mb-2;
+        }
+        .form-checkbox {
+            @apply w-5 h-5 text-pink-500 bg-gray-100 border-gray-300 rounded focus:ring-pink-500 focus:ring-2;
+        }
+        /* Scroll Animation */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Level Cards */
+        .level-card {
+            @apply p-6 rounded-2xl text-white transition-all duration-500 shadow-2xl;
+        }
+        .level-struggle { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .level-survival { background: linear-gradient(135deg, #f97316, #c2410c); }
+        .level-protection { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .level-comfort { background: linear-gradient(135deg, #10b981, #047857); }
+        .level-freedom { background: linear-gradient(135deg, #8b5cf6, #5b21b6); }
+        .level-abundance { background: linear-gradient(135deg, #d946ef, #a21caf); }
+        
+        .donut-chart {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+        }
+        .donut-chart-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+    <div class="container mx-auto p-4 md:p-8 relative z-10">
+
+        <!-- Header & Dashboard -->
+        <section class="min-h-screen flex flex-col items-center justify-center text-center py-16 scroll-animate">
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-4 text-shadow">วางแผนการเงิน...<br>เพื่อเป้าหมายชีวิตของคุณ</h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90">ค้นพบระดับความมั่งคั่งและก้าวสู่ขั้นต่อไปอย่างมั่นคง</p>
+            
+            <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                <div id="wealthLevelCard" class="level-card level-struggle">
+                    <h2 class="text-2xl font-bold mb-2">ระดับความมั่งคั่งของคุณ</h2>
+                    <div class="text-center py-4">
+                        <div id="levelIcon" class="text-6xl mb-2">⏳</div>
+                        <h3 id="levelName" class="text-2xl font-bold">กรุณากรอกข้อมูล</h3>
+                        <p id="levelDescription" class="mt-2 text-sm opacity-90">เริ่มกรอกข้อมูลเพื่อวิเคราะห์สถานะของคุณ</p>
+                    </div>
+                </div>
+                <div class="glass-card">
+                     <h2 class="text-2xl font-bold text-white mb-4">🩺 สุขภาพการเงิน</h2>
+                     <div class="flex items-center justify-around gap-4">
+                        <div class="text-center">
+                            <p class="font-bold">ที่มาของรายได้</p>
+                            <div id="incomeSourceChart" class="donut-chart mx-auto mt-2 bg-white/20">
+                                <div class="donut-chart-center">
+                                    <span class="text-2xl font-bold" id="totalIncomeDisplay">0</span>
+                                    <span class="text-xs block">บาท/เดือน</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4 text-sm w-full">
+                            <div>
+                                <div class="flex justify-between mb-1"><span>ความอยู่รอด (เดือน)</span><span id="survivalRatio" class="font-bold">0.0</span></div>
+                                <div class="w-full bg-white/20 rounded-full h-2.5"><div id="survivalRatioBar" class="bg-blue-300 h-2.5 rounded-full" style="width: 0%"></div></div>
+                            </div>
+                             <div>
+                                <div class="flex justify-between mb-1"><span>ภาระหนี้ (%)</span><span id="debtRatio" class="font-bold">0.0</span></div>
+                                <div class="w-full bg-white/20 rounded-full h-2.5"><div id="debtRatioBar" class="bg-pink-400 h-2.5 rounded-full" style="width: 0%"></div></div>
+                            </div>
+                        </div>
+                     </div>
+                </div>
+            </div>
+             <a href="#income-section" class="mt-16 animate-bounce">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+            </a>
+        </section>
+
+        <!-- Income Section -->
+        <section id="income-section" class="py-16 scroll-animate">
+            <div class="glass-card max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-8">💰 1. รายรับ (ต่อเดือน)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div><label for="incomeE" class="form-label">ลูกจ้าง (E)</label><input type="number" id="incomeE" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="incomeS" class="form-label">ธุรกิจส่วนตัว (S)</label><input type="number" id="incomeS" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="incomeB" class="form-label">เจ้าของธุรกิจ (B)</label><input type="number" id="incomeB" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="incomeI" class="form-label">นักลงทุน (I - Passive)</label><input type="number" id="incomeI" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-white/20 text-right"><span class="text-lg">รวมรายรับ: </span><span id="totalIncomeDisplayCard" class="text-xl font-bold">0 ฿</span></div>
+            </div>
+        </section>
+
+        <!-- Expense Section -->
+        <section class="py-16 scroll-animate">
+            <div class="glass-card max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-8">💸 2. รายจ่าย (ต่อเดือน)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div><label for="expHousing" class="form-label">ค่าที่อยู่อาศัย</label><input type="number" id="expHousing" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="expFood" class="form-label">ค่าอาหาร</label><input type="number" id="expFood" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="expTransport" class="form-label">ค่าเดินทาง</label><input type="number" id="expTransport" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="expPersonal" class="form-label">ค่าใช้จ่ายส่วนตัว</label><input type="number" id="expPersonal" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="expDebt" class="form-label">ชำระหนี้สินอื่นๆ</label><input type="number" id="expDebt" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="expSaving" class="form-label">เงินออม/ลงทุน</label><input type="number" id="expSaving" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-white/20 text-right"><span class="text-lg">รวมรายจ่าย: </span><span id="totalExpenseDisplayCard" class="text-xl font-bold">0 ฿</span></div>
+            </div>
+        </section>
+        
+        <!-- Assets & Liabilities Section -->
+        <section class="py-16 scroll-animate">
+            <div class="glass-card max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-8">🏦 3. ทรัพย์สินและหนี้สิน</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-center">ทรัพย์สินทั้งหมด</h3>
+                        <div class="space-y-4">
+                            <div><label for="emergencyFund" class="form-label">เงินสำรองฉุกเฉิน</label><input type="number" id="emergencyFund" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                            <div><label for="assetLiquid" class="form-label">เงินสด/ออมทรัพย์อื่นๆ</label><input type="number" id="assetLiquid" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                            <div><label for="assetInvest" class="form-label">สินทรัพย์ลงทุน</label><input type="number" id="assetInvest" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                            <div><label for="assetPersonal" class="form-label">สินทรัพย์ส่วนตัว</label><input type="number" id="assetPersonal" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-white/20 text-right"><span class="text-lg">รวมทรัพย์สิน: </span><span id="totalAssetsDisplayCard" class="text-xl font-bold">0 ฿</span></div>
+                    </div>
+                     <div>
+                        <h3 class="text-xl font-semibold mb-4 text-center">หนี้สินทั้งหมด</h3>
+                        <div class="space-y-4">
+                            <div><label for="debtShort" class="form-label">หนี้ระยะสั้น</label><input type="number" id="debtShort" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                            <div><label for="debtLong" class="form-label">หนี้ระยะยาว</label><input type="number" id="debtLong" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-white/20 text-right"><span class="text-lg">รวมหนี้สิน: </span><span id="totalDebtsDisplayCard" class="text-xl font-bold">0 ฿</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tax Deduction Section -->
+        <section class="py-16 scroll-animate">
+            <div class="glass-card max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-8">🧾 4. รายการลดหย่อนภาษี (ต่อปี)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div><label for="deductSocialSecurity" class="form-label">ประกันสังคม (ไม่เกิน 9,000)</label><input type="number" id="deductSocialSecurity" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="deductLifeInsurance" class="form-label">ประกันชีวิต/สุขภาพ (ไม่เกิน 1 แสน)</label><input type="number" id="deductLifeInsurance" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="deductHomeLoan" class="form-label">ดอกเบี้ยบ้าน (ไม่เกิน 1 แสน)</label><input type="number" id="deductHomeLoan" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="deductSSF" class="form-label">SSF (ไม่เกิน 2 แสน)</label><input type="number" id="deductSSF" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="deductRMF" class="form-label">RMF (ไม่เกิน 5 แสน)</label><input type="number" id="deductRMF" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                    <div><label for="deductDonation" class="form-label">เงินบริจาค</label><input type="number" id="deductDonation" class="form-input" placeholder="0" oninput="calculateAll()"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Protection Plan Section -->
+        <section class="py-16 scroll-animate">
+            <div class="glass-card max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-8">🛡️ 5. แผนป้องกันความเสี่ยง</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+                    <div class="flex items-center justify-center flex-col">
+                        <label for="hasLifeInsurance" class="form-label mb-3">ประกันชีวิต</label>
+                        <input type="checkbox" id="hasLifeInsurance" class="form-checkbox" oninput="calculateAll()">
+                    </div>
+                    <div class="flex items-center justify-center flex-col">
+                        <label for="hasHealthInsurance" class="form-label mb-3">ประกันสุขภาพ</label>
+                        <input type="checkbox" id="hasHealthInsurance" class="form-checkbox" oninput="calculateAll()">
+                    </div>
+                    <div class="flex items-center justify-center flex-col">
+                        <label for="hasRetirementPlan" class="form-label mb-3">แผนเกษียณ</label>
+                        <input type="checkbox" id="hasRetirementPlan" class="form-checkbox" oninput="calculateAll()">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Result Section -->
+        <section class="py-16 scroll-animate">
+             <div class="text-center">
+                <h2 class="text-4xl font-bold mb-8">6. สรุปและเป้าหมายถัดไป</h2>
+                <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="glass-card text-left">
+                        <h3 class="text-2xl font-bold mb-4">🎯 เป้าหมายถัดไป</h3>
+                        <p id="nextStepDescription" class="text-lg opacity-90">-</p>
+                    </div>
+                    <div class="glass-card text-left">
+                        <h3 class="text-2xl font-bold mb-4">🧾 ประมาณการภาษี</h3>
+                         <div class="space-y-2">
+                            <div class="flex justify-between"><span>รายได้พึงประเมิน/ปี:</span><span id="taxableIncomeYearly" class="font-bold">0 ฿</span></div>
+                            <div class="flex justify-between"><span>หักลดหย่อนรวม:</span><span id="totalDeductionsDisplay" class="font-bold">0 ฿</span></div>
+                            <div class="flex justify-between"><span>เงินได้สุทธิ:</span><span id="netTaxableIncome" class="font-bold">0 ฿</span></div>
+                            <hr class="border-white/20 my-2"/>
+                            <div class="flex justify-between text-lg">
+                                <span class="font-bold">ภาษีที่ต้องชำระ/ปี:</span>
+                                <span id="estimatedTax" class="font-bold">0 ฿</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- SCROLL ANIMATION ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.scroll-animate').forEach(el => {
+            observer.observe(el);
+        });
+
+        // --- UTILITY FUNCTIONS ---
+        const getVal = id => parseFloat(document.getElementById(id).value) || 0;
+        const getCheck = id => document.getElementById(id).checked;
+        const setHtml = (id, text) => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = text;
+        };
+        const formatCurrency = (num) => num.toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        const formatCurrencyWithSymbol = (num) => `${formatCurrency(num)} ฿`;
+
+        // --- DATA STRUCTURE FOR WEALTH LEVELS ---
+        const wealthLevels = {
+            struggle: { name: "Financial Struggle - ดิ้นรน", icon: "😥", description: "รายได้ใกล้เคียงหรือน้อยกว่ารายจ่าย อยู่ในสภาวะเดือนชนเดือน", nextStep: "สร้างวินัย! ทำบัญชีรายรับ-จ่ายจริงจัง และลดรายจ่ายที่ไม่จำเป็น" },
+            survival: { name: "Financial Survival - อยู่รอด", icon: "😌", description: "รายได้มากกว่ารายจ่าย เริ่มมีเงินเหลือเก็บ แต่ยังไม่มีเงินสำรองฉุกเฉิน", nextStep: "สร้างเงินสำรองฉุกเฉินให้ได้ 3-6 เท่าของรายจ่ายต่อเดือน และเริ่มสร้างแผนป้องกันความเสี่ยง" },
+            protection: { name: "Financial Protection - ปลอดภัย", icon: "🛡️", description: "มีแผนป้องกันความเสี่ยงที่จำเป็นครบถ้วนแล้ว", nextStep: "เพิ่มพูนความมั่งคั่ง! ตั้งเป้าให้รายได้รวมเป็น 2 เท่าของรายจ่าย และเริ่มลงทุน" },
+            comfort: { name: "Financial Comfort - มั่นคง", icon: "😊", description: "รายได้มากกว่ารายจ่ายอย่างน้อย 2 เท่า และลงทุนสม่ำเสมอ", nextStep: "สร้าง Passive Income! มุ่งเน้นการลงทุนให้เงินทำงานแทนเรา" },
+            freedom: { name: "Financial Freedom - อิสรภาพ", icon: "🎉", description: "Passive Income มากกว่ารายจ่าย 2 เท่า ไม่ต้องทำงานก็มีเงินใช้", nextStep: "สู่ความล้นเหลือ! บริหารพอร์ตให้ยั่งยืน และวางแผนส่งต่อความมั่งคั่ง" },
+            abundance: { name: "Financial Abundance - ล้นเหลือ", icon: "👑", description: "มีทรัพย์สินและ Passive Income มากเกินพอที่จะใช้ทั้งชีวิต", nextStep: "แบ่งปันและสร้างคุณค่า! ใช้ความมั่งคั่งช่วยเหลือสังคมและทำตามฝัน" }
+        };
+
+        // --- MAIN CALCULATION LOGIC ---
+        function calculateAll() {
+            // 1. Get all input values
+            const incomeE = getVal('incomeE');
+            const incomeS = getVal('incomeS');
+            const incomeB = getVal('incomeB');
+            const incomeI = getVal('incomeI');
+            const expHousing = getVal('expHousing');
+            const expFood = getVal('expFood');
+            const expTransport = getVal('expTransport');
+            const expPersonal = getVal('expPersonal');
+            const expDebt = getVal('expDebt');
+            const expSaving = getVal('expSaving');
+            const emergencyFund = getVal('emergencyFund');
+            const assetLiquid = getVal('assetLiquid');
+            const assetInvest = getVal('assetInvest');
+            const assetPersonal = getVal('assetPersonal');
+            const debtShort = getVal('debtShort');
+            const debtLong = getVal('debtLong');
+            const hasLifeInsurance = getCheck('hasLifeInsurance');
+            const hasHealthInsurance = getCheck('hasHealthInsurance');
+            const hasRetirementPlan = getCheck('hasRetirementPlan');
+            
+            const livingExpense = expHousing + expFood + expTransport + expPersonal + expDebt;
+            const hasFullProtection = hasLifeInsurance && hasHealthInsurance && hasRetirementPlan;
+
+            // 2. Calculate totals
+            const totalIncome = incomeE + incomeS + incomeB + incomeI;
+            const totalExpense = livingExpense + expSaving;
+            const totalLiquidAssets = emergencyFund + assetLiquid;
+            const totalAssets = totalLiquidAssets + assetInvest + assetPersonal;
+            const totalDebts = debtShort + debtLong;
+            const netWorth = totalAssets - totalDebts;
+
+            // 3. Determine Wealth Level
+            let currentLevelKey = 'struggle';
+            if (totalIncome > 0 || totalExpense > 0) {
+                 if (incomeI > livingExpense * 5 && livingExpense > 0 && netWorth > 30000000) {
+                    currentLevelKey = 'abundance';
+                } else if (incomeI >= livingExpense * 2 && livingExpense > 0) {
+                    currentLevelKey = 'freedom';
+                } else if (totalIncome >= livingExpense * 2 && livingExpense > 0 && assetInvest > 0) {
+                    currentLevelKey = 'comfort';
+                } else if (totalIncome > livingExpense && hasFullProtection) {
+                    currentLevelKey = 'protection';
+                } else if (totalIncome > livingExpense) {
+                    currentLevelKey = 'survival';
+                }
+            }
+            
+            updateWealthLevelUI(currentLevelKey);
+            
+            // 4. Calculate Financial Health Ratios and Update Totals
+            calculateFinancialHealth(totalLiquidAssets, livingExpense, totalDebts, totalAssets);
+            updateTotals(totalIncome, totalExpense, totalAssets, totalDebts);
+
+            // 5. Update Income Source Chart
+            updateIncomeChart(incomeE, incomeS, incomeB, incomeI, totalIncome);
+
+            // 6. Calculate Tax
+            calculateTax(totalIncome);
+        }
+        
+        // --- UI UPDATE FUNCTIONS ---
+        function updateWealthLevelUI(levelKey) {
+            const level = wealthLevels[levelKey] || wealthLevels.struggle;
+            const card = document.getElementById('wealthLevelCard');
+            card.className = 'level-card';
+            card.classList.add(level.className);
+            setHtml('levelIcon', level.icon);
+            setHtml('levelName', level.name);
+            setHtml('levelDescription', level.description);
+            setHtml('nextStepDescription', level.nextStep);
+        }
+
+        function calculateFinancialHealth(liquidAssets, livingExpenses, totalDebts, totalAssets) {
+            const survivalRatio = livingExpenses > 0 ? liquidAssets / livingExpenses : 0;
+            setHtml('survivalRatio', survivalRatio.toFixed(1));
+            document.getElementById('survivalRatioBar').style.width = `${Math.min((survivalRatio / 6) * 100, 100)}%`;
+
+            const debtRatio = totalAssets > 0 ? (totalDebts / totalAssets) * 100 : 0;
+            setHtml('debtRatio', debtRatio.toFixed(1));
+            document.getElementById('debtRatioBar').style.width = `${Math.min(debtRatio, 100)}%`;
+        }
+
+        function updateTotals(totalIncome, totalExpense, totalAssets, totalDebts) {
+            setHtml('totalIncomeDisplayCard', formatCurrencyWithSymbol(totalIncome));
+            setHtml('totalExpenseDisplayCard', formatCurrencyWithSymbol(totalExpense));
+            setHtml('totalAssetsDisplayCard', formatCurrencyWithSymbol(totalAssets));
+            setHtml('totalDebtsDisplayCard', formatCurrencyWithSymbol(totalDebts));
+        }
+        
+        function updateIncomeChart(e, s, b, i, total) {
+            setHtml('totalIncomeDisplay', formatCurrency(total));
+            const chart = document.getElementById('incomeSourceChart');
+            if (total === 0) {
+                chart.style.background = 'rgba(255,255,255,0.2)';
+                return;
+            }
+            const e_pct = (e / total) * 100;
+            const s_pct = (s / total) * 100;
+            const b_pct = (b / total) * 100;
+            const i_pct = (i / total) * 100;
+
+            const gradient = `conic-gradient(
+                #34d399 ${e_pct}%, 
+                #fbbf24 ${e_pct}% ${e_pct + s_pct}%, 
+                #60a5fa ${e_pct + s_pct}% ${e_pct + s_pct + b_pct}%, 
+                #c084fc ${e_pct + s_pct + b_pct}% 100%
+            )`;
+            chart.style.background = gradient;
+        }
+
+        function calculateTax(monthlyIncome) {
+            const annualIncome = monthlyIncome * 12;
+            
+            // Get deductions from form
+            const deductSocialSecurity = Math.min(getVal('deductSocialSecurity'), 9000);
+            const deductLifeInsurance = Math.min(getVal('deductLifeInsurance'), 100000);
+            const deductHomeLoan = Math.min(getVal('deductHomeLoan'), 100000);
+            const deductSSF = Math.min(getVal('deductSSF'), 200000);
+            const deductRMF = Math.min(getVal('deductRMF'), 500000);
+            const deductDonation = getVal('deductDonation');
+
+            // Standard deductions
+            const expensesDeduction = Math.min(annualIncome * 0.5, 100000);
+            const personalAllowance = 60000;
+            
+            const totalDeductions = personalAllowance + expensesDeduction + deductSocialSecurity + deductLifeInsurance + deductHomeLoan + deductSSF + deductRMF + deductDonation;
+            
+            let netTaxableIncome = annualIncome - totalDeductions;
+            if (netTaxableIncome < 0) netTaxableIncome = 0;
+
+            let tax = 0;
+            const tempIncome = netTaxableIncome;
+
+            if (tempIncome > 5000000) tax += (tempIncome - 5000000) * 0.35;
+            if (tempIncome > 2000000) tax += (Math.min(tempIncome, 5000000) - 2000000) * 0.30;
+            if (tempIncome > 1000000) tax += (Math.min(tempIncome, 2000000) - 1000000) * 0.25;
+            if (tempIncome > 750000) tax += (Math.min(tempIncome, 1000000) - 750000) * 0.20;
+            if (tempIncome > 500000) tax += (Math.min(tempIncome, 750000) - 500000) * 0.15;
+            if (tempIncome > 300000) tax += (Math.min(tempIncome, 500000) - 300000) * 0.10;
+            if (tempIncome > 150000) tax += (Math.min(tempIncome, 300000) - 150000) * 0.05;
+            
+            setHtml('taxableIncomeYearly', formatCurrencyWithSymbol(annualIncome));
+            setHtml('totalDeductionsDisplay', formatCurrencyWithSymbol(totalDeductions));
+            setHtml('netTaxableIncome', formatCurrencyWithSymbol(netTaxableIncome));
+            setHtml('estimatedTax', formatCurrencyWithSymbol(tax));
+        }
+
+        // Initial calculation on page load
+        window.onload = () => {
+            document.querySelector('.scroll-animate').classList.add('visible'); // Show first section immediately
+            calculateAll();
+        };
+    </script>
+</body>
+</html>
